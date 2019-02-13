@@ -1,5 +1,7 @@
 var express                 = require("express"),
     bodyParser              = require("body-parser");
+    jwt                     = require("jsonwebtoken"),
+    expressjwt              = require("express-jwt")
     app                     = express(),
     fs                      = require("fs"),
     path                    = require("path"),
@@ -8,7 +10,6 @@ var express                 = require("express"),
     IP                      = "127.0.0.1",
     testFolder              = "./folder";
     // require('dotenv').config();
-
 
 var cors = require('cors');
 app.use(cors());
@@ -20,33 +21,107 @@ app.use(bodyParser.urlencoded({extended: true}));
 // join the path of the test folder to the workspace path
 var newFolder = path.join(__dirname, testFolder)
 
-app.get("/", (req, res) => {
+const jwtCheck = expressjwt({
+    secret: "fileupload"
+})
+
+
+app.get("/resource", (req, res) => {
+    res
+    .status(200)
+    .send("You can see this")
+})
+
+app.get("/resource/secret", jwtCheck ,(req, res) => {
+    res
+    .status(200)
+    .send("You should be logged in to see this")
+})
+
+app.get("/status", (req, res) => {
+    const localTime = (new Date()).toLocaleTimeString();
+
+    res
+    .status(200)
+    .send(`Server time is ${localTime}.`)
+})
+
+
+
+const users = [
+    {id: 1, username: "admin", password: "admin"},
+    {id: 1, username: "guest", password: "guest"}
+]
+
+app.post("/login", (req, res) => {
+    const username = req.body.name;
+    const password = req.body.password;
+    if(!username || !password){
+        res
+        .status(400)
+        .send("You need ausername and Password");
+        return;
+    }    
+
+    const user = users.find((u) => {
+        return u.username === username && u.password === password
+    })
+
+    if(!user){
+        res
+        .status(401)
+        .send("User not found");
+        return;
+    }
+
+    const token = jwt.sign({
+        sub: user.id,
+        username: user.username
+    }, "fileupload", { expiresIn: "3 hours"})
+    res
+    .status(200)
+    .send({access_token: token})
+})
+
+
+app.get("/files", jwtCheck, (req, res) => {
+
     // innitiate an empty array that will contain the file properties
+    var fileProperties = {}
     var fileArray = [];
     fs.readdir(newFolder, (err, files) =>{
         if(err){
             console.log(err)
+            return res.status(400).send({
+                success: false,
+                message: 'File read failed, check the request'
+            });
         }else{
             // creat an empty object for file properties
-            var fileProperties = {}
             // loop through each file
             for (let i = 0; i < files.length; i++) {
                 var file = files[i];
                 var ext = path.extname(file);
                 // assign properties and values to the object
                 fileProperties = {
+                    id: i,
                     extension: ext,
                     type: mime.getType(file),
                     name: path.basename(file, ext),
                     information: path.basename(file),
-                    size: generateFileSize(file)
+                    size: generateFileSize(file),
+                    message: true
                 }
-                // push the object into the file array
-                fileArray.push(fileProperties)
                 // check if the files are less than 10
                 if(files.length < 10 ){
-                    res.render("folder", {file: files}) 
-                    console.log("Files in folder should be 10 or more");
+                    fileProperties.message = false;
+                    
+                    return res.status(200).send({
+                        success: true,
+                        message: fileArray
+                    });
+                    // res.render("folder", {file: files}) 
+                    // console.log("Files in folder should be 10 or more");
                 } else {
                     // check the file extension, return false if not csv or exel
                     if(fileProperties.extension != ".csv" &&  fileProperties.extension != ".xlsx") {
@@ -58,9 +133,16 @@ app.get("/", (req, res) => {
                          fileProperties.supported = true;
                     }
                 }   
+                
+                // push the object into the file array
+                fileArray.push(fileProperties)
             }
             // send the file array to the frontend
-            res.render("home", {file: fileArray})
+            // res.render("home", {file: fileArray})
+           return res.status(200).send({
+                success: true,
+                message: fileArray
+            });
         }
     })
     
@@ -74,8 +156,10 @@ function generateFileSize(param){
         return (size)
 }
 
+app.get("*", (req, res) => {
+    res.sendStatus(404)
+})
 
-  
 app.listen(PORT, IP, () => {
     console.log(`Server is listening on ${PORT}`)
 })
