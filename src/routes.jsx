@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Login } from './components/Login';
 import { Signup } from './components/Signup';
-import  Upload  from './components/Upload';
+import  { Upload }  from './components/Upload';
 import  { withAuth } from './components/withAuth';
 const Routes = () => (
   <Router>

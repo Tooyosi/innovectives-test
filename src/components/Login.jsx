@@ -2,12 +2,15 @@ import React, { Fragment, Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
+var ACCESS_TOKEN = undefined;
+
 export class Login extends Component {
         constructor(props) {
           super(props);
           this.state = {
               formUsername: '',
-              formPassword: ''
+              formPassword: '',
+              token: ''
           };
           this.login = this.login.bind(this);
           this.username = this.username.bind(this);
@@ -17,21 +20,31 @@ export class Login extends Component {
             event.preventDefault()
           axios({
             method: "POST",
-            url: `http://localhost:3000/testLogin`,
+            url: `http://localhost:3000/login`,
+            headers: {
+              "Content-type": "application/json",
+              "accept": "application/json"
+            },
             data: {
                 name:   this.state.formUsername,
                 password: this.state.formPassword
             }
           }).then((response) => {
-                if(response.data.success){
-                    console.log("successful login");
+                if(response.status == 200){
+                    ACCESS_TOKEN = response.data.access_token,
                     console.log(response);
-                    this.props.history.replace("/upload")
+                    console.log("successful login");
+                    this.setState({
+                      token: ACCESS_TOKEN 
+                    })
+                    console.log(this.state.token)
+                    this.props.history.replace("/upload")              
                 }else{
                     console.log("failed")
-                    this.props.history.replace("/login")
+                    // this.props.history.replace("/login")
                 }
                 // this.props.history.replace("/upload")
+          }).then(() =>{
           }).catch(error => {
             console.log(error);
           });
@@ -59,4 +72,5 @@ export class Login extends Component {
           );
         }
       } 
-    
+  
+    export default ACCESS_TOKEN;
