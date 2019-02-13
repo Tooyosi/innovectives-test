@@ -26,7 +26,7 @@ export class Login extends Component {
                 if(response.data.success){
                     console.log("successful login");
                     console.log(response);
-                    this.props.history.replace("/auth")
+                    this.props.history.replace("/upload")
                 }else{
                     console.log("failed")
                     this.props.history.replace("/login")

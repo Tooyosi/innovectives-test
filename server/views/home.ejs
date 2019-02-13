@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <% file.forEach((files)=>{%>
+        <% if(!files.supported){%>
+            <p><%=files.name%> has a  file type of <%=files.type %> which is is not supported</p>
+        <%} else{%>
+            <p>File name: <%=files.name%></p>
+            <p>File Type: <%=files.type%></p>
+            <p>File information: <%=files.information%></p>
+            <p>File extension: <%=files.extension%></p>
+            <p>File size: <%=files.size%></p>
+        <%} %>
+    <%})%>
+</body>
+</html>

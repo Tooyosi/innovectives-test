@@ -1,2 +1,6 @@
 node_modules
 .env
+.babelrc
+config.js
+middleware.js
+src

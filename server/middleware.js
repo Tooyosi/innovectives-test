@@ -1,10 +1,13 @@
 let jwt = require('jsonwebtoken');
 
 const config = require("./config.js");
+var middleware = {};
 
-let checkToken = (req, res, next) => {
+
+middleware.checkToken = (req, res, next) => {
         console.log(req.body)
         console.log(req.headers)
+       
     var token = req.headers['x-access-token'] || req.headers['authorization'];
     if(token.startsWith('Bearer')){
         // Remove bearer from string
@@ -31,6 +34,13 @@ let checkToken = (req, res, next) => {
     }
 };
 
-module.exports = {
-    checkToken: checkToken
+middleware.supportedType = (req, res, next) => {
+    if(fileProperties.supported){
+        next()
+    }else{
+        fileProperties.supportMessage = "file not supported"
+        next()
+    }
 }
+
+module.exports = middleware;
