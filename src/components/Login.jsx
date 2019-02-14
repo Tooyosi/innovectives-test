@@ -1,8 +1,24 @@
 import React, { Fragment, Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import axios from 'axios';
+import { Upload } from './Upload';
+import styled from 'styled-components'
 
-var ACCESS_TOKEN = undefined;
+const LoginStyle = styled.div`
+  .container{
+    margin: 0;
+    padding: 0;
+  }
+ .wrapper{
+   display: grid;
+   grid-template-column: 1fr;
+   form{
+    position: relative;
+    
+   }
+ }
+`
+var ACCESS_TOKEN = '';
 
 export class Login extends Component {
         constructor(props) {
@@ -34,10 +50,6 @@ export class Login extends Component {
                     ACCESS_TOKEN = response.data.access_token,
                     console.log(response);
                     console.log("successful login");
-                    this.setState({
-                      token: ACCESS_TOKEN 
-                    })
-                    console.log(this.state.token)
                     this.props.history.replace("/upload")              
                 }else{
                     console.log("failed")
@@ -54,23 +66,33 @@ export class Login extends Component {
             formUsername: event.target.value,
           })
         }
+        setToken(param) { 
+          this.setState({
+            token: ACCESS_TOKEN,
+          })
+        }
         password(event) {
           this.setState({
             formPassword: event.target.value,
           })
         }
         render() {
+          <Upload uploadToken={this.setToken}/>
+          // const props  = this.state.token;
           return (
-              
-        <Fragment>
-                <form  onSubmit={this.login}>   
-                    <input onChange={this.username} type="text" name="username" value={this.state.formUsername} required placeholder="Name(required)" />
-                    <input onChange={this.password} type="password" name="password" value={this.state.formPassword} required placeholder="Your email" />
-                    <input type="submit" value="Send" />
-                </form>
-        </Fragment>
+              <LoginStyle>
+               <div className="container">
+                 <div className="wrapper">
+                    <form  onSubmit={this.login}>   
+                        <input onChange={this.username} type="text" name="username" value={this.state.formUsername} required placeholder="Name(required)" />
+                        <input onChange={this.password} type="password" name="password" value={this.state.formPassword} required placeholder="Your email" />
+                        <input type="submit" value="Send" />
+                    </form>
+                 </div>
+               </div>
+              </LoginStyle>
+          
           );
         }
       } 
   
-    export default ACCESS_TOKEN;

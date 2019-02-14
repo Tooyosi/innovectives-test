@@ -49,12 +49,12 @@ router.post("/login", (req, res) => {
     if(!username || !password){
         res
         .status(400)
-        .send("You need ausername and Password");
+        .send("You need a username and Password");
         return;
     }    
 
     const user = users.find((u) => {
-        return u.username === username && u.password === password
+        return u.username == username && u.password == password
     })
 
     if(!user){
@@ -74,7 +74,7 @@ router.post("/login", (req, res) => {
 })
 
 
-router.get("/files",   (req, res) => {
+router.get("/files", jwtCheck ,  (req, res) => {
 
     // innitiate an empty array that will contain the file properties
     var fileProperties = {}

@@ -1,13 +1,10 @@
 import React, { Fragment, Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import axios from 'axios';
-import ACCESS_TOKEN from './Login';
 
 const API_URL = "http://localhost:3000"
 const AUTH_URL = "http://localhost:8080"
 
-// let ACCESS_TOKEN = undefined;
-console.log(ACCESS_TOKEN)
 export class Upload extends Component {
     constructor(props) {
       super(props);
@@ -23,8 +20,9 @@ export class Upload extends Component {
       ready: 'loading',
     });
     var headers = {}
-    if(ACCESS_TOKEN){
-        headers = {Authorization: `Bearer ${ACCESS_TOKEN}`}
+    if(this.props.uploadToken){
+        // headers = {Authorization: `Bearer ${props.token}`}
+        console.log(this.props.uploadToken)
     }
     axios({
       method: 'get',
@@ -33,6 +31,7 @@ export class Upload extends Component {
     }).then((res) => {
       if(res.data.success){
           console.log(res)
+        console.log(props.token)
         console.log("Done")
         this.setState({
             ready: 'loaded',
@@ -41,10 +40,12 @@ export class Upload extends Component {
     }else{
         console.log("Failed")
         console.log(res)
+        console.log(props.token)
         this.props.history.replace("/")
       }
     }).catch(error => {
         console.log(error.response)
+        console.log(this.props)
     })
   }
     render() {
