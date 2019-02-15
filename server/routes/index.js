@@ -11,32 +11,24 @@ router = express.Router({mergeParams: true});
 // join the path of the test folder to the workspace path
 var newFolder = path.join(__dirname, testFolder)
 
-const jwtCheck = expressjwt({
-    secret: "fileupload"
-})
 
 
-router.get("/resource", (req, res) => {
-    res
-    .status(200)
-    .send("You can see this")
-})
-
-router.get("/resource/secret", jwtCheck ,(req, res) => {
-    res
-    .status(200)
-    .send("You should be logged in to see this")
-})
-
-router.get("/status", (req, res) => {
-    const localTime = (new Date()).toLocaleTimeString();
-
-    res
-    .status(200)
-    .send(`Server time is ${localTime}.`)
-})
-
-
+// middliware to check token
+const withAuth = function(req, res, next) {
+    // check for token and save in a variable
+    var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
+    
+    // validate token
+    if(!token){
+        res
+        .status(401)
+        .send("Unauthorized: Invalid Token");
+        return;
+    }else{
+        // do next thing
+        next()
+    }
+}
 
 const users = [
     {id: 1, username: "admin", password: "admin"},
@@ -46,6 +38,7 @@ const users = [
 router.post("/login", (req, res) => {
     const username = req.body.name;
     const password = req.body.password;
+    // If theres no user input send a status code of 400
     if(!username || !password){
         res
         .status(400)
@@ -53,6 +46,7 @@ router.post("/login", (req, res) => {
         return;
     }    
 
+    // validate users
     const user = users.find((u) => {
         return u.username == username && u.password == password
     })
@@ -62,20 +56,29 @@ router.post("/login", (req, res) => {
         .status(401)
         .send("User not found");
         return;
-    }
+    } else{
+        // generate a token
+        const token = jwt.sign({
+            sub: user.id,
+            username: user.username
+        }, "fileupload", { expiresIn: "3 hours"})
 
-    const token = jwt.sign({
-        sub: user.id,
-        username: user.username
-    }, "fileupload", { expiresIn: "3 hours"})
-    res
-    .status(200)
-    .send({access_token: token})
+        // save and pass token as cookie
+        res.cookie('token', token, {
+            // expiresIn: new Date() + 1000,
+            maxAge: 50000, //5 minutes
+            httpOnly: true
+        });
+
+        //send a status code of 200 
+        res
+        .status(200)
+        .send({access_token: token})    
+    }
 })
 
 
-router.get("/files", jwtCheck ,  (req, res) => {
-
+router.get("/files", withAuth,  (req, res) => {
     // innitiate an empty array that will contain the file properties
     var fileProperties = {}
     var fileArray = [];
@@ -146,6 +149,7 @@ function generateFileSize(param){
         return (size)
 }
 
+// not found route
 router.get("*", (req, res) => {
     res.sendStatus(404)
 })

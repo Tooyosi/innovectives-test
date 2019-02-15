@@ -11,7 +11,7 @@ var authenticatedUser = request.agent(app);
 
 var token = '';
 
-
+// authenyicate the users
 beforeEach(function(done){
     authenticatedUser
         .post('/login')
@@ -22,7 +22,7 @@ beforeEach(function(done){
             token = result.access_token;
             
         })
-            done();
+        done();
 })
 
 describe("GET /files", function(done){
@@ -33,7 +33,6 @@ describe("GET /files", function(done){
     })
 
     it("should print the details from the scanned folder", function(done){
-
         authenticatedUser
             .get("/files")
             .set('Authorization', 'Bearer ' + token)
