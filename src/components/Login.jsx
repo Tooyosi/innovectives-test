@@ -107,8 +107,8 @@ export class Login extends Component {
                <div className="container">
                  <div className="wrapper">
                     <form  onSubmit={this.login}>   
-                        <input onChange={this.username} type="text" name="username" value={this.state.formUsername} required placeholder="Name(required)" />
-                        <input onChange={this.password} type="password" name="password" value={this.state.formPassword} required placeholder="Your email" />
+                        <input onChange={this.username} type="text" name="username" value={this.state.formUsername} required placeholder="Name" />
+                        <input onChange={this.password} type="password" name="password" value={this.state.formPassword} required placeholder="Password" />
                         <input type="submit" value="Send" />
                     </form>
                  </div>
