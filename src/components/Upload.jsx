@@ -1,9 +1,24 @@
 import React, { Fragment, Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
 import axios from 'axios';
+import styled from 'styled-components'
 
-const API_URL = "http://localhost:3000"
-const AUTH_URL = "http://localhost:8080"
+const UploadStyle = styled.div`
+  *{
+    margin: 0px;
+    padding: 5px
+  }
+  thead{
+    background-color: black;
+    color: white;
+  }
+  tr:nth-child(even) {
+    background-color: pink;
+}
+ }
+`
+
+
+const API_URL = "http://localhost:3000";
 
 export class Upload extends Component {
     constructor(props) {
@@ -19,20 +34,19 @@ export class Upload extends Component {
       this.setState({
       ready: 'loading',
     });
-    var headers = {}
-    if(this.props.uploadToken){
-        // headers = {Authorization: `Bearer ${props.token}`}
-        console.log(this.props.uploadToken)
-    }
     axios({
       method: 'get',
       url: `${API_URL}/files`,
-      headers: headers,
+      redirect: 'follow',
+      withCredentials: true,
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:8080",
+        "Content-type": "application/json",
+        "accept": "application/json"
+      },
     }).then((res) => {
-      if(res.data.success){
+      if(res.status == 200){
           console.log(res)
-        console.log(props.token)
-        console.log("Done")
         this.setState({
             ready: 'loaded',
             fileProperties: res.data.message
@@ -40,34 +54,50 @@ export class Upload extends Component {
     }else{
         console.log("Failed")
         console.log(res)
-        console.log(props.token)
         this.props.history.replace("/")
       }
     }).catch(error => {
         console.log(error.response)
-        console.log(this.props)
+        this.props.history.replace("/")
     })
   }
     render() {
         const { fileProperties, ready } = this.state;
         return (
             <Fragment>
-                { fileProperties.length ? '' : 'Files in your folder are less than 10'  }
-                { ready === 'loading' ? '' : '' }
-                { fileProperties.map(property => (
-                    <div key={property.id}>
-                    {(property.message)? 
-                    <div>
-                        <p>File-name:{property.name} <br/>
-                            <span>Type: {property.type} </span> <br/>
-                            <span>Extension: {property.extension}</span> <br/>
-                            <span>Information: {property.information}</span> <br/>
-                            <span>Supported: {property.supported? "Supported File" : "Un-supported file"}</span>
-                        </p>
-                    </div>
-                    : ""}
-                    </div>
-              )) }
+                <UploadStyle>
+                    { fileProperties.length ? '' : 'Files in your folder are less than 10'  }
+                    { ready === 'loading' ? '' : '' }
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>No</td>
+                                <td>File-name</td>
+                                <td>Type</td>
+                                <td>Extension</td>
+                                <td>Information</td>
+                                <td>Size</td>
+                                <td>Supported</td>
+                            </tr>
+                        </thead>
+                        { fileProperties.map(property => (
+                        <tbody>
+                          {(property.message)? 
+                            <tr key={property.id}>
+                                <td>{property.id + 1}</td>
+                                <td>{property.name}</td>
+                                <td>{property.type}</td>
+                                <td>{property.extension}</td>
+                                <td>{property.information}</td>
+                                <td>{property.size}</td>
+                                <td>{property.supported? "Supported File" : "Un-supported file"}</td>
+                            </tr>
+                          : ""}
+                        </tbody>
+                    )) }
+                    </table>
+
+                </UploadStyle>
             </Fragment>
         )
     }    

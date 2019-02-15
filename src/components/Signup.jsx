@@ -1,66 +1,56 @@
 import React, { Fragment, Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
-import axios from 'axios';
+import styled from 'styled-components';
 
-export class Signup extends Component {
-        constructor(props) {
-          super(props);
-          this.state = {
-              formUsername: '',
-              formPassword: ''
-          };
-          this.login = this.login.bind(this);
-          this.username = this.username.bind(this);
-          this.password = this.password.bind(this);
-        }
-        login(event) {
-            event.preventDefault()
-          axios({
-            method: "POST",
-            url: `http://localhost:3000/signup`,
-            data: JSON.stringify({
-                name:   this.state.formUsername,
-                password: this.state.formPassword
-            }),
-            headers: {
-              'Content-Type': 'application/json'
-             },
-             responseType: "application/json"
-          }).then((response) => {
-                if(response.response.status = 200){
-                    console.log("successful login");
-                    this.props.history.replace("/upload")
-                }
-                else{
-                    console.log("failed")
-                    this.props.history.replace("/")
-                }
-                // this.props.history.replace("/upload")
-          }).catch(error => {
-            console.log(error.response.data);
-          });
-        }
-        username(event) { 
-          this.setState({
-            formUsername: event.target.value,
-          })
-        }
-        password(event) {
-          this.setState({
-            formPassword: event.target.value,
-          })
-        }
-        render() {
-          return (
-              
-        <Fragment>
-                <form  onSubmit={this.login}>   
-                    <input onChange={this.username} type="text" name="username" value={this.state.formUsername} required placeholder="Name(required)" />
-                    <input onChange={this.password} type="password" name="password" value={this.state.formPassword} required placeholder="Your email" />
-                    <input type="submit" value="Send" />
-                </form>
-        </Fragment>
-          );
-        }
-      } 
-    
+const SignupStyle = styled.div`
+height: 100vh;
+padding: 10px;
+background-color: #e3dfe0;
+text-align: center;
+table{
+    width: 50%;
+    padding: 20px;
+    border: 1px solid white;
+    margin: 0 auto;
+}
+a{
+    text-decoration: none;
+    padding: 5px;
+    border: 2px solid transparent;
+    border-radius: 5%;
+    color: white;
+    background-color: #3bcb3b;
+    transition: .4s linear;
+}
+a:hover{
+  padding: 7px;
+}
+`;
+
+const Signup = () => (
+  <Fragment>
+    <SignupStyle>
+      <p>Please Log in with either of the following details</p>
+      <table>
+        <thead>
+          <tr>
+            <td>Username</td>
+            <td>Password</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>admin</td>
+            <td>admin</td>
+          </tr>
+          <tr>
+            <td>guest</td>
+            <td>guest</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a href="/login">Login</a></p>
+    </SignupStyle>
+  </Fragment>
+  )
+
+export default Signup;
